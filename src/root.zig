@@ -2731,7 +2731,7 @@ pub const IComponentType = extern struct {
         link: *const fn (this: *IComponentType, out_linked_component_type: **IComponentType, out_diagnostics: ?**IBlob) callconv(mcall) Result,
         getEntryPointHostCallable: *const fn (this: *IComponentType, entry_point_index: i32, target_index: i32, out_shared_library: **ISharedLibrary, out_diagnostics: ?**IBlob) callconv(mcall) Result,
         renameEntryPoint: *const fn (this: *IComponentType, new_name: [*:0]const u8, out_entry_point: **IComponentType) callconv(mcall) Result,
-        linkWithOptions: *const fn (this: *IComponentType, out_linked_component_type: **IComponentType, compiler_option_entry_count: u32, compiler_option_entries: [*]CompilerOptionEntry, out_dianostics: ?**IBlob) callconv(mcall) Result,
+        linkWithOptions: *const fn (this: *IComponentType, out_linked_component_type: **IComponentType, compiler_option_entry_count: u32, compiler_option_entries: [*]const CompilerOptionEntry, out_dianostics: ?**IBlob) callconv(mcall) Result,
         getTargetCode: *const fn (this: *IComponentType, target_index: i64, out_code: **IBlob, out_diagnostics: ?**IBlob) callconv(mcall) Result,
         getTargetMetadata: *const fn (this: *IComponentType, target_index: i64, out_metadata: **IMetadata, out_diagnostics: ?**IBlob) callconv(mcall) Result,
         getEntryPointMetadata: *const fn (this: *IComponentType, entry_point_index: i64, target_index: i64, out_metadata: **IMetadata, out_diagnostics: ?**IBlob) callconv(mcall) Result,
@@ -3526,8 +3526,7 @@ const Rng = std.Random.DefaultPrng;
 const FUNC_ITER_COUNT = 10_000;
 
 test "vtables and argument passing" {
-    var seed: u64 = undefined;
-    try std.posix.getrandom(std.mem.asBytes(&seed));
+    const seed: u64 = 0x5ca1ab1e;
     var rng = Rng.init(seed);
     // TODO: I think there is a way to print this only if the test failed
     std.log.info("Seed for this run was 0x{X}\n", .{seed});

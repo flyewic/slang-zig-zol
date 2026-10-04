@@ -2,26 +2,52 @@
 
 Zig bindings for the [Slang shading language](https://shader-slang.org/) providing access to its compilation and reflection APIs.
 
+> **Fork notice (flyewic/slang-zig-zol).** Forked from
+> [raugl/slang-zig](https://github.com/raugl/slang-zig) to track **Slang
+> 2026.14**. The changes are small and ABI-only:
+>
+> - `IGlobalSession::getDownstreamCompilerVersion`,
+>   `ISession::getDeclSourceLocation` and
+>   `IComponentType2::getTargetHostCallable` are new pure virtuals appended at
+>   the end of their interfaces (no existing vtable slot shifts).
+> - `IComponentType::linkWithOptions` now takes a `const` option array.
+> - The test seed uses a fixed value (Zig 0.16 removed `std.posix.getrandom`).
+> - An explicit SDK can be supplied with `-Dslang-include` / `-Dslang-lib` so a
+>   consumer with Slang already installed (e.g. a distro package under `/opt`)
+>   skips the lazy SDK download.
+>
+> The upstream ABI test (`src/abi_test.cpp`) passes against 2026.14, so the
+> vtable order is verified against the real headers rather than assumed.
+
 ## Getting started
 
 Fetch the library
 
 ```sh
-zig fetch --save git+https://github.com/raugl/slang-zig
+zig fetch --save git+https://github.com/flyewic/slang-zig-zol
 ```
 
 then use it in your `build.zig`:
 
 ```zig
-const slang_dep = b.dependency("slang-zig", .{
+const slang_dep = b.dependency("slang-zig-zol", .{
     .target = target,
     .optimize = optimize,
     // Automatically log any slang diagnostics using `std.log` when providing
     // null as the blob pointer (this is the default)
     .log_diagnostics = .only_for_null,
+    // Optional: use an already-installed SDK instead of fetching one.
+    .@"slang-include" = "/opt/shader-slang/include",
+    .@"slang-lib" = "/opt/shader-slang/lib",
 });
 exe.root_module.addImport("slang", slang_dep.module("slang"));
 ```
+
+> **Header collision gotcha.** The SDK's `slang.h` must be found *before* the
+> system `/usr/include/slang.h` (the unrelated S-Lang interpreter). The build
+> adds the SDK include directory with `-I` (not `-isystem`); a consumer that
+> links this module by other means must do the same.
+
 
 ## Compilation API example
 

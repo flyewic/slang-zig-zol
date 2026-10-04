@@ -542,6 +542,16 @@ static void beginArgs(std::string_view func_name) {
     appendArg(archiveType);                                                    \
     appendArg(outBlob);                                                        \
     return 0;                                                                  \
+  }                                                                            \
+                                                                               \
+  SLANG_NO_THROW SlangResult SLANG_MCALL getDownstreamCompilerVersion(         \
+      SlangPassThrough passThrough, int *outMajor, int *outMinor) override {   \
+    beginArgs(class_name ".getDownstreamCompilerVersion");                     \
+    appendArg(this);                                                           \
+    appendArg(passThrough);                                                    \
+    appendArg(outMajor);                                                       \
+    appendArg(outMinor);                                                       \
+    return 0;                                                                  \
   }
 
 #define OVERRIDE_ISESSION(class_name)                                          \
@@ -758,6 +768,16 @@ static void beginArgs(std::string_view func_name) {
     appendArg(&outModuleCompilerVersion);                                      \
     appendArg(&outModuleName);                                                 \
     return 0;                                                                  \
+  }                                                                            \
+                                                                               \
+  SLANG_NO_THROW SlangResult SLANG_MCALL getDeclSourceLocation(                \
+      slang::DeclReflection *decl, slang::SourceLocation *outLocation)         \
+      override {                                                               \
+    beginArgs(class_name ".getDeclSourceLocation");                            \
+    appendArg(this);                                                           \
+    appendArg(decl);                                                           \
+    appendArg(outLocation);                                                    \
+    return 0;                                                                  \
   }
 
 #define OVERRIDE_IMETADATA(class_name)                                         \
@@ -911,7 +931,7 @@ static void beginArgs(std::string_view func_name) {
   SLANG_NO_THROW SlangResult SLANG_MCALL linkWithOptions(                      \
       slang::IComponentType **outLinkedComponentType,                          \
       uint32_t compilerOptionEntryCount,                                       \
-      slang::CompilerOptionEntry *compilerOptionEntries,                       \
+      const slang::CompilerOptionEntry *compilerOptionEntries,                 \
       ISlangBlob **outDiagnostics = nullptr) override {                        \
     beginArgs(class_name ".linkWithOptions");                                  \
     appendArg(this);                                                           \
@@ -988,6 +1008,17 @@ static void beginArgs(std::string_view func_name) {
     appendArg(entryPointIndex);                                                \
     appendArg(targetIndex);                                                    \
     appendArg(outCompileResult);                                               \
+    appendArg(outDiagnostics);                                                 \
+    return 0;                                                                  \
+  }                                                                            \
+                                                                               \
+  SLANG_NO_THROW SlangResult SLANG_MCALL getTargetHostCallable(                \
+      int targetIndex, ISlangSharedLibrary **outSharedLibrary,                 \
+      slang::IBlob **outDiagnostics) override {                                \
+    beginArgs(class_name ".getTargetHostCallable");                            \
+    appendArg(this);                                                           \
+    appendArg(targetIndex);                                                    \
+    appendArg(outSharedLibrary);                                               \
     appendArg(outDiagnostics);                                                 \
     return 0;                                                                  \
   }
